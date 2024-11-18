@@ -4,7 +4,8 @@ import time
 import sys
 from api import TrainGetter
 import requests
-
+from datetime import datetime
+from datetime import time as time_of_day
 
 
 pixels = neopixel.NeoPixel(board.D18, 144, auto_write=False)
@@ -13,6 +14,12 @@ NORTHBOUND_START = 75
 SOUTHBOUND_START = 0
 
 STATION_COUNT = 23
+
+# Dim the lights between 11PM and 6AM to 30% brightness
+DIM_AT = time_of_day(23)
+DONE_DIM_AT = time_of_day(6)
+
+DIM_FACTOR = .30
 
 API_KEY = sys.argv[1]
 
@@ -24,6 +31,12 @@ northbound_station_leds = [x * 3 + NORTHBOUND_START for x in range(STATION_COUNT
 southbound_station_leds = [x * 3 + SOUTHBOUND_START  for x in range(STATION_COUNT)]
 northbound_station_leds.reverse()
 
+
+def time_in_between(now, start, end):
+    if start <= end:
+        return start <= now < end
+    else: # over midnight e.g., 23:30-04:15
+        return start <= now or now < end
 
 def update():
     for x in range(len(pixels)):
@@ -70,10 +83,21 @@ def update():
         # draw trains in the station as yellow
         pixels[led] = (35, 25, 0)
 
+    current_time = datetime.now().time()
+    if time_in_between(current_time, DIM_AT, DONE_DIM_AT):
+        pixels.brightness = DIM_FACTOR
+    else:
+        pixels.brightness = 1
+
     pixels.show()
 
 
 
 while (True):
-    update()
+    try:
+        update()
+    except Exception as e:
+        print("ERROR")
+        print(e)
+
     time.sleep(15)
