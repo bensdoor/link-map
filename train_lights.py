@@ -6,9 +6,10 @@ from api import TrainGetter
 import requests
 from datetime import datetime
 from datetime import time as time_of_day
+from api_key import API_KEY
 
-
-pixels = neopixel.NeoPixel(board.D18, 144, auto_write=False)
+DATA_PIN = board.D10
+pixels = neopixel.NeoPixel(DATA_PIN, 144, auto_write=False)
 
 NORTHBOUND_START = 75
 SOUTHBOUND_START = 0
@@ -21,10 +22,8 @@ DONE_DIM_AT = time_of_day(6)
 
 DIM_FACTOR = .30
 
-API_KEY = sys.argv[1]
-
 # Using capitol hill has a you are here mark
-CAPTIOL_HILL_IDX = 14
+CAPITOL_HILL_IDX = 14
 
 
 northbound_station_leds = [x * 3 + NORTHBOUND_START for x in range(STATION_COUNT)]
@@ -45,12 +44,12 @@ def update():
     # Color capitol hill blue in both directions
     for i, pin in enumerate(northbound_station_leds):
         pixels[pin] = (25,0,0)
-        if i == CAPTIOL_HILL_IDX:
+        if i == CAPITOL_HILL_IDX:
             pixels[pin] = (10,0,100)
 
     for i, pin in enumerate(southbound_station_leds):
         pixels[pin] = (25,0,0)
-        if i == CAPTIOL_HILL_IDX:
+        if i == CAPITOL_HILL_IDX:
             pixels[pin] = (10,0,100)
 
 
